@@ -201,6 +201,65 @@ footer { background: var(--charcoal); padding: 0 56px 40px; border-top: 1px soli
 .aos-gap { background: var(--ivory-dark); border-left: 3px solid var(--gold); padding: 24px 28px; margin: 32px 0; }
 .aos-gap-label { font-family: 'Jost', sans-serif; font-size: 10px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; display: block; }
 .aos-gap p { font-size: 16px; }
+
+/* ENGAGEMENT */
+.post-engagement {
+  max-width: 720px; margin: 0 auto;
+  padding: 0 56px 48px;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap; gap: 24px;
+  border-top: 1px solid var(--border);
+  padding-top: 40px;
+}
+.like-btn {
+  display: flex; align-items: center; gap: 10px;
+  background: none; border: 1px solid var(--border);
+  padding: 10px 20px; cursor: pointer;
+  font-family: 'Jost', sans-serif;
+  font-size: 12px; font-weight: 500; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--text-mid);
+  transition: all 0.25s;
+}
+.like-btn:hover { border-color: var(--gold); color: var(--charcoal); }
+.like-btn.liked { border-color: var(--gold); color: var(--gold); background: rgba(194,164,109,0.08); }
+.like-btn .heart { font-size: 16px; transition: transform 0.2s; }
+.like-btn.liked .heart { transform: scale(1.2); }
+.like-count { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; }
+.share-label {
+  font-family: 'Jost', sans-serif;
+  font-size: 10px; font-weight: 500; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--text-light);
+}
+.share-buttons { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.share-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'Jost', sans-serif;
+  font-size: 10px; font-weight: 500; letter-spacing: 2px;
+  text-transform: uppercase; text-decoration: none;
+  padding: 9px 16px; border: 1px solid var(--border);
+  color: var(--text-mid); background: none;
+  cursor: pointer; transition: all 0.25s;
+}
+.share-btn:hover { border-color: var(--charcoal); color: var(--charcoal); }
+.share-btn.copied { border-color: var(--gold); color: var(--gold); }
+.share-btn svg { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
+.comments-section {
+  max-width: 720px; margin: 0 auto;
+  padding: 0 56px 80px;
+}
+.comments-label {
+  font-family: 'Jost', sans-serif;
+  font-size: 10px; font-weight: 500; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--text-light);
+  display: block; margin-bottom: 24px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+@media (max-width: 900px) {
+  .post-engagement { padding: 32px 24px 32px; }
+  .comments-section { padding: 0 24px 60px; }
+}
 .empty-state { text-align: center; padding: 80px 24px; color: var(--text-light); font-family: 'Jost', sans-serif; font-size: 14px; letter-spacing: 1px; }
 
 /* MOBILE */
@@ -2615,6 +2674,13 @@ function showPost(post) {
   document.getElementById('view-post').style.display = 'block';
   window.scrollTo(0, 0);
 
+  const postUrl = encodeURIComponent(window.location.href + '#post-' + post.id);
+  const postTitle = encodeURIComponent(post.title + ' | Leadership in Practice with Frenetta Tate');
+  const likeKey = 'lip_like_' + post.id;
+  const likeCountKey = 'lip_likecount_' + post.id;
+  const liked = localStorage.getItem(likeKey) === 'true';
+  const likeCount = parseInt(localStorage.getItem(likeCountKey) || '0');
+
   document.getElementById('post-content').innerHTML = `
     <div class="post-hero">
       <button class="post-back" onclick="showIndex()">
@@ -2633,7 +2699,95 @@ function showPost(post) {
       <img src="${getPillarImage(post)}" alt="${post.category}" style="width:100%;height:auto;display:block;" onerror="this.style.display='none'">
     </div>
     <div class="post-body">${post.body}</div>
+    <div class="post-engagement">
+      <button class="like-btn ${liked ? 'liked' : ''}" id="likeBtn" onclick="toggleLike(${post.id})">
+        <span class="heart">${liked ? '♥' : '♡'}</span>
+        <span class="like-count" id="likeCount">${likeCount}</span>
+        <span>${liked ? 'Liked' : 'Like this post'}</span>
+      </button>
+      <div class="share-buttons">
+        <span class="share-label">Share</span>
+        <a class="share-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=${postUrl}" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          LinkedIn
+        </a>
+        <a class="share-btn" href="https://twitter.com/intent/tweet?url=${postUrl}&text=${postTitle}" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          X
+        </a>
+        <button class="share-btn" id="copyBtn" onclick="copyLink('${decodeURIComponent(postUrl)}')">
+          <svg viewBox="0 0 24 24"><path d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/></svg>
+          Copy Link
+        </button>
+      </div>
+    </div>
+    <div class="comments-section">
+      <span class="comments-label">Discussion</span>
+      <div id="giscus-container"></div>
+    </div>
   `;
+
+  // Inject Giscus after innerHTML is set — avoids script-tag-in-template-literal issue
+  (function() {
+    var container = document.getElementById('giscus-container');
+    if (!container) return;
+    var s = document.createElement('script');
+    s.src = 'https://giscus.app/client.js';
+    s.setAttribute('data-repo', 'frenettatate-droid/LIP');
+    s.setAttribute('data-repo-id', 'R_kgDOSidLNw');
+    s.setAttribute('data-category', 'Announcements');
+    s.setAttribute('data-category-id', 'DIC_kwDOSidLN84C9eR2');
+    s.setAttribute('data-mapping', 'pathname');
+    s.setAttribute('data-strict', '0');
+    s.setAttribute('data-reactions-enabled', '1');
+    s.setAttribute('data-emit-metadata', '0');
+    s.setAttribute('data-input-position', 'bottom');
+    s.setAttribute('data-theme', 'preferred_color_scheme');
+    s.setAttribute('data-lang', 'en');
+    s.setAttribute('crossorigin', 'anonymous');
+    s.async = true;
+    container.appendChild(s);
+  })();
+}
+
+/* ============================================================
+   ENGAGEMENT FUNCTIONS
+   ============================================================ */
+function toggleLike(postId) {
+  const likeKey = 'lip_like_' + postId;
+  const likeCountKey = 'lip_likecount_' + postId;
+  const btn = document.getElementById('likeBtn');
+  const countEl = document.getElementById('likeCount');
+  const liked = localStorage.getItem(likeKey) === 'true';
+  const count = parseInt(localStorage.getItem(likeCountKey) || '0');
+
+  if (liked) {
+    localStorage.setItem(likeKey, 'false');
+    localStorage.setItem(likeCountKey, Math.max(0, count - 1));
+    btn.classList.remove('liked');
+    btn.querySelector('.heart').textContent = '♡';
+    btn.querySelector('span:last-child').textContent = 'Like this post';
+    countEl.textContent = Math.max(0, count - 1);
+  } else {
+    localStorage.setItem(likeKey, 'true');
+    localStorage.setItem(likeCountKey, count + 1);
+    btn.classList.add('liked');
+    btn.querySelector('.heart').textContent = '♥';
+    btn.querySelector('span:last-child').textContent = 'Liked';
+    countEl.textContent = count + 1;
+  }
+}
+
+function copyLink(url) {
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.classList.add('copied');
+    btn.querySelector('span:last-child').textContent = 'Copied!';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.querySelector('span:last-child').textContent = 'Copy Link';
+    }, 2000);
+  });
 }
 
 /* ============================================================
